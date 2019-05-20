@@ -57,7 +57,7 @@ import static io.vavr.control.TryModule.sneakyThrow;
  * @param <T> Value type in the case of success.
  * @author Daniel Dietrich
  */
-public interface Try<T> extends Value<T>, Serializable {
+public interface TryPouet<T> extends Value<T>, Serializable {
 
     long serialVersionUID = 1L;
 
@@ -69,7 +69,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return {@code Success(supplier.apply())} if no exception occurs, otherwise {@code Failure(throwable)} if an
      * exception occurs calling {@code supplier.apply()}.
      */
-    static <T> Try<T> of(CheckedFunction0<? extends T> supplier) {
+    static <T> TryPouet<T> of(CheckedFunction0<? extends T> supplier) {
         Objects.requireNonNull(supplier, "supplier is null");
         try {
             return new Success<>(supplier.apply());
@@ -87,7 +87,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return {@code Success(supplier.get())} if no exception occurs, otherwise {@code Failure(throwable)} if an
      * exception occurs calling {@code supplier.get()}.
      */
-    static <T> Try<T> ofSupplier(Supplier<? extends T> supplier) {
+    static <T> TryPouet<T> ofSupplier(Supplier<? extends T> supplier) {
         Objects.requireNonNull(supplier, "supplier is null");
         return of(supplier::get);
     }
@@ -100,7 +100,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return {@code Success(callable.call())} if no exception occurs, otherwise {@code Failure(throwable)} if an
      * exception occurs calling {@code callable.call()}.
      */
-    static <T> Try<T> ofCallable(Callable<? extends T> callable) {
+    static <T> TryPouet<T> ofCallable(Callable<? extends T> callable) {
         Objects.requireNonNull(callable, "callable is null");
         return of(callable::call);
     }
@@ -112,7 +112,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return {@code Success(null)} if no exception occurs, otherwise {@code Failure(throwable)} if an exception occurs
      * calling {@code runnable.run()}.
      */
-    static Try<Void> run(CheckedRunnable runnable) {
+    static TryPouet<Void> run(CheckedRunnable runnable) {
         Objects.requireNonNull(runnable, "runnable is null");
         try {
             runnable.run();
@@ -129,7 +129,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return {@code Success(null)} if no exception occurs, otherwise {@code Failure(throwable)} if an exception occurs
      * calling {@code runnable.run()}.
      */
-    static Try<Void> runRunnable(Runnable runnable) {
+    static TryPouet<Void> runRunnable(Runnable runnable) {
         Objects.requireNonNull(runnable, "runnable is null");
         return run(runnable::run);
     }
@@ -144,16 +144,16 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return A {@code Try} of a {@link Seq} of results
      * @throws NullPointerException if {@code values} is null
      */
-    static <T> Try<Seq<T>> sequence(Iterable<? extends Try<? extends T>> values) {
+    static <T> TryPouet<Seq<T>> sequence(Iterable<? extends TryPouet<? extends T>> values) {
         Objects.requireNonNull(values, "values is null");
         Vector<T> vector = Vector.empty();
-        for (Try<? extends T> value : values) {
+        for (TryPouet<? extends T> value : values) {
             if (value.isFailure()) {
-                return Try.failure(value.getCause());
+                return TryPouet.failure(value.getCause());
             }
             vector = vector.append(value.get());
         }
-        return Try.success(vector);
+        return TryPouet.success(vector);
     }
 
     /**
@@ -163,7 +163,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @param <T>   Type of the given {@code value}.
      * @return A new {@code Success}.
      */
-    static <T> Try<T> success(T value) {
+    static <T> TryPouet<T> success(T value) {
         return new Success<>(value);
     }
 
@@ -174,7 +174,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @param <T>       Component type of the {@code Try}.
      * @return A new {@code Failure}.
      */
-    static <T> Try<T> failure(Throwable exception) {
+    static <T> TryPouet<T> failure(Throwable exception) {
         return new Failure<>(exception);
     }
 
@@ -188,8 +188,8 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return the given {@code t} instance as narrowed type {@code Try<T>}.
      */
     @SuppressWarnings("unchecked")
-    static <T> Try<T> narrow(Try<? extends T> t) {
-        return (Try<T>) t;
+    static <T> TryPouet<T> narrow(TryPouet<? extends T> t) {
+        return (TryPouet<T>) t;
     }
 
     /**
@@ -200,7 +200,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * {@code Failure} of the consumption.
      * @throws NullPointerException if {@code consumer} is null
      */
-    default Try<T> andThen(Consumer<? super T> consumer) {
+    default TryPouet<T> andThen(Consumer<? super T> consumer) {
         Objects.requireNonNull(consumer, "consumer is null");
         return andThenTry(consumer::accept);
     }
@@ -223,7 +223,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * {@code Failure} of the consumption.
      * @throws NullPointerException if {@code consumer} is null
      */
-    default Try<T> andThenTry(CheckedConsumer<? super T> consumer) {
+    default TryPouet<T> andThenTry(CheckedConsumer<? super T> consumer) {
         Objects.requireNonNull(consumer, "consumer is null");
         if (isFailure()) {
             return this;
@@ -245,7 +245,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * {@code Failure} of the run.
      * @throws NullPointerException if {@code runnable} is null
      */
-    default Try<T> andThen(Runnable runnable) {
+    default TryPouet<T> andThen(Runnable runnable) {
         Objects.requireNonNull(runnable, "runnable is null");
         return andThenTry(runnable::run);
     }
@@ -282,7 +282,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * {@code Failure} of the run.
      * @throws NullPointerException if {@code runnable} is null
      */
-    default Try<T> andThenTry(CheckedRunnable runnable) {
+    default TryPouet<T> andThenTry(CheckedRunnable runnable) {
         Objects.requireNonNull(runnable, "runnable is null");
         if (isFailure()) {
             return this;
@@ -316,7 +316,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @throws NullPointerException if {@code partialFunction} is null
      */
     @SuppressWarnings("unchecked")
-    default <R> Try<R> collect(PartialFunction<? super T, ? extends R> partialFunction){
+    default <R> TryPouet<R> collect(PartialFunction<? super T, ? extends R> partialFunction){
         Objects.requireNonNull(partialFunction, "partialFunction is null");
         return filter(partialFunction::isDefinedAt).map(partialFunction::apply);
     }
@@ -327,7 +327,7 @@ public interface Try<T> extends Value<T>, Serializable {
      *
      * @return a new Try
      */
-    default Try<Throwable> failed() {
+    default TryPouet<Throwable> failed() {
         if (isFailure()) {
             return new Success<>(getCause());
         } else {
@@ -344,7 +344,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return a {@code Try} instance
      * @throws NullPointerException if {@code predicate} or {@code throwableSupplier} is null
      */
-    default Try<T> filter(Predicate<? super T> predicate, Supplier<? extends Throwable> throwableSupplier) {
+    default TryPouet<T> filter(Predicate<? super T> predicate, Supplier<? extends Throwable> throwableSupplier) {
         Objects.requireNonNull(predicate, "predicate is null");
         Objects.requireNonNull(throwableSupplier, "throwableSupplier is null");
         return filterTry(predicate::test, throwableSupplier);
@@ -359,7 +359,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return a {@code Try} instance
      * @throws NullPointerException if {@code predicate} or {@code errorProvider} is null
      */
-    default Try<T> filter(Predicate<? super T> predicate, Function<? super T, ? extends Throwable> errorProvider) {
+    default TryPouet<T> filter(Predicate<? super T> predicate, Function<? super T, ? extends Throwable> errorProvider) {
         Objects.requireNonNull(predicate, "predicate is null");
         Objects.requireNonNull(errorProvider, "errorProvider is null");
         return filterTry(predicate::test, errorProvider::apply);
@@ -372,7 +372,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return a {@code Try} instance
      * @throws NullPointerException if {@code predicate} is null
      */
-    default Try<T> filter(Predicate<? super T> predicate) {
+    default TryPouet<T> filter(Predicate<? super T> predicate) {
         Objects.requireNonNull(predicate, "predicate is null");
         return filterTry(predicate::test);
     }
@@ -389,7 +389,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return a {@code Try} instance
      * @throws NullPointerException if {@code predicate} or {@code throwableSupplier} is null
      */
-    default Try<T> filterTry(CheckedPredicate<? super T> predicate, Supplier<? extends Throwable> throwableSupplier) {
+    default TryPouet<T> filterTry(CheckedPredicate<? super T> predicate, Supplier<? extends Throwable> throwableSupplier) {
         Objects.requireNonNull(predicate, "predicate is null");
         Objects.requireNonNull(throwableSupplier, "throwableSupplier is null");
 
@@ -420,7 +420,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return a {@code Try} instance
      * @throws NullPointerException if {@code predicate} or {@code errorProvider} is null
      */
-    default Try<T> filterTry(CheckedPredicate<? super T> predicate, CheckedFunction1<? super T, ? extends Throwable> errorProvider) {
+    default TryPouet<T> filterTry(CheckedPredicate<? super T> predicate, CheckedFunction1<? super T, ? extends Throwable> errorProvider) {
         Objects.requireNonNull(predicate, "predicate is null");
         Objects.requireNonNull(errorProvider, "errorProvider is null");
         return flatMapTry(t -> predicate.test(t) ? this : failure(errorProvider.apply(t)));
@@ -436,7 +436,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return a {@code Try} instance
      * @throws NullPointerException if {@code predicate} is null
      */
-    default Try<T> filterTry(CheckedPredicate<? super T> predicate) {
+    default TryPouet<T> filterTry(CheckedPredicate<? super T> predicate) {
         Objects.requireNonNull(predicate, "predicate is null");
         return filterTry(predicate, () -> new NoSuchElementException("Predicate does not hold for " + get()));
     }
@@ -449,9 +449,9 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return a {@code Try}
      * @throws NullPointerException if {@code mapper} is null
      */
-    default <U> Try<U> flatMap(Function<? super T, ? extends Try<? extends U>> mapper) {
+    default <U> TryPouet<U> flatMap(Function<? super T, ? extends TryPouet<? extends U>> mapper) {
         Objects.requireNonNull(mapper, "mapper is null");
-        return flatMapTry((CheckedFunction1<T, Try<? extends U>>) mapper::apply);
+        return flatMapTry((CheckedFunction1<T, TryPouet<? extends U>>) mapper::apply);
     }
 
     /**
@@ -463,13 +463,13 @@ public interface Try<T> extends Value<T>, Serializable {
      * @throws NullPointerException if {@code mapper} is null
      */
     @SuppressWarnings("unchecked")
-    default <U> Try<U> flatMapTry(CheckedFunction1<? super T, ? extends Try<? extends U>> mapper) {
+    default <U> TryPouet<U> flatMapTry(CheckedFunction1<? super T, ? extends TryPouet<? extends U>> mapper) {
         Objects.requireNonNull(mapper, "mapper is null");
         if (isFailure()) {
             return (Failure<U>) this;
         } else {
             try {
-                return (Try<U>) mapper.apply(get());
+                return (TryPouet<U>) mapper.apply(get());
             } catch (Throwable t) {
                 return new Failure<>(t);
             }
@@ -562,7 +562,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @throws NullPointerException if {@code mapper} is null
      */
     @Override
-    default <U> Try<U> map(Function<? super T, ? extends U> mapper) {
+    default <U> TryPouet<U> map(Function<? super T, ? extends U> mapper) {
         Objects.requireNonNull(mapper, "mapper is null");
         return mapTry(mapper::apply);
     }
@@ -577,7 +577,7 @@ public interface Try<T> extends Value<T>, Serializable {
      */
     @GwtIncompatible
     @SuppressWarnings({ "unchecked", "varargs" })
-    default Try<T> mapFailure(Match.Case<? extends Throwable, ? extends Throwable>... cases) {
+    default TryPouet<T> mapFailure(Match.Case<? extends Throwable, ? extends Throwable>... cases) {
         if (isSuccess()) {
             return this;
         } else {
@@ -607,7 +607,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @throws NullPointerException if {@code mapper} is null
      */
     @SuppressWarnings("unchecked")
-    default <U> Try<U> mapTry(CheckedFunction1<? super T, ? extends U> mapper) {
+    default <U> TryPouet<U> mapTry(CheckedFunction1<? super T, ? extends U> mapper) {
         Objects.requireNonNull(mapper, "mapper is null");
         if (isFailure()) {
             return (Failure<U>) this;
@@ -627,7 +627,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return this
      * @throws NullPointerException if {@code action} is null
      */
-    default Try<T> onFailure(Consumer<? super Throwable> action) {
+    default TryPouet<T> onFailure(Consumer<? super Throwable> action) {
         Objects.requireNonNull(action, "action is null");
         if (isFailure()) {
             action.accept(getCause());
@@ -642,7 +642,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return this
      * @throws NullPointerException if {@code action} is null
      */
-    default Try<T> onSuccess(Consumer<? super T> action) {
+    default TryPouet<T> onSuccess(Consumer<? super T> action) {
         Objects.requireNonNull(action, "action is null");
         if (isSuccess()) {
             action.accept(get());
@@ -651,15 +651,15 @@ public interface Try<T> extends Value<T>, Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    default Try<T> orElse(Try<? extends T> other) {
+    default TryPouet<T> orElse(TryPouet<? extends T> other) {
         Objects.requireNonNull(other, "other is null");
-        return isSuccess() ? this : (Try<T>) other;
+        return isSuccess() ? this : (TryPouet<T>) other;
     }
 
     @SuppressWarnings("unchecked")
-    default Try<T> orElse(Supplier<? extends Try<? extends T>> supplier) {
+    default TryPouet<T> orElse(Supplier<? extends TryPouet<? extends T>> supplier) {
         Objects.requireNonNull(supplier, "supplier is null");
-        return isSuccess() ? this : (Try<T>) supplier.get();
+        return isSuccess() ? this : (TryPouet<T>) supplier.get();
     }
 
     default T getOrElseGet(Function<? super Throwable, ? extends T> other) {
@@ -695,7 +695,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @throws NullPointerException if {@code action} is null
      */
     @Override
-    default Try<T> peek(Consumer<? super T> action) {
+    default TryPouet<T> peek(Consumer<? super T> action) {
         Objects.requireNonNull(action, "action is null");
         if (isSuccess()) {
             action.accept(get());
@@ -716,13 +716,13 @@ public interface Try<T> extends Value<T>, Serializable {
      */
     @GwtIncompatible
     @SuppressWarnings("unchecked")
-    default <X extends Throwable> Try<T> recover(Class<X> exception, Function<? super X, ? extends T> f) {
+    default <X extends Throwable> TryPouet<T> recover(Class<X> exception, Function<? super X, ? extends T> f) {
         Objects.requireNonNull(exception, "exception is null");
         Objects.requireNonNull(f, "f is null");
         if (isFailure()) {
             final Throwable cause = getCause();
             if (exception.isAssignableFrom(cause.getClass())) {
-                return Try.of(() -> f.apply((X) cause));
+                return TryPouet.of(() -> f.apply((X) cause));
             }
         }
         return this;
@@ -731,17 +731,17 @@ public interface Try<T> extends Value<T>, Serializable {
     /**
      * Returns {@code this}, if this is a {@code Success} or this is a {@code Failure} and the cause is not assignable
      * from {@code cause.getClass()}. Otherwise tries to recover the exception of the failure with {@code f} <b>which returns Try</b>.
-     * If {@link Try#isFailure()} returned by {@code f} function is <code>true</code> it means that recovery cannot take place due to some circumstances.
+     * If {@link TryPouet#isFailure()} returned by {@code f} function is <code>true</code> it means that recovery cannot take place due to some circumstances.
      *
      * @param <X>       Exception type
      * @param exception The specific exception type that should be handled
      * @param f         A recovery function taking an exception of type {@code X} and returning Try as a result of recovery.
-     *                  If Try is {@link Try#isSuccess()} then recovery ends up successfully. Otherwise the function was not able to recover.
+     *                  If Try is {@link TryPouet#isSuccess()} then recovery ends up successfully. Otherwise the function was not able to recover.
      * @return a {@code Try}
      */
     @GwtIncompatible
     @SuppressWarnings("unchecked")
-    default <X extends Throwable> Try<T> recoverWith(Class<X> exception, Function<? super X, Try<? extends T>> f){
+    default <X extends Throwable> TryPouet<T> recoverWith(Class<X> exception, Function<? super X, TryPouet<? extends T>> f){
         Objects.requireNonNull(exception, "exception is null");
         Objects.requireNonNull(f, "f is null");
         if(isFailure()){
@@ -758,7 +758,7 @@ public interface Try<T> extends Value<T>, Serializable {
     }
 
     @GwtIncompatible
-    default <X extends Throwable> Try<T> recoverWith(Class<X> exception, Try<? extends T> recovered){
+    default <X extends Throwable> TryPouet<T> recoverWith(Class<X> exception, TryPouet<? extends T> recovered){
         return (isFailure() && exception.isAssignableFrom(getCause().getClass()))
                 ? narrow(recovered)
                 : this;
@@ -776,10 +776,10 @@ public interface Try<T> extends Value<T>, Serializable {
      * @throws NullPointerException if {@code exception} is null
      */
     @GwtIncompatible
-    default <X extends Throwable> Try<T> recover(Class<X> exception, T value) {
+    default <X extends Throwable> TryPouet<T> recover(Class<X> exception, T value) {
         Objects.requireNonNull(exception, "exception is null");
         return (isFailure() && exception.isAssignableFrom(getCause().getClass()))
-               ? Try.success(value)
+               ? TryPouet.success(value)
                : this;
     }
 
@@ -793,10 +793,10 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return a {@code Try}
      * @throws NullPointerException if {@code f} is null
      */
-    default Try<T> recover(Function<? super Throwable, ? extends T> f) {
+    default TryPouet<T> recover(Function<? super Throwable, ? extends T> f) {
         Objects.requireNonNull(f, "f is null");
         if (isFailure()) {
-            return Try.of(() -> f.apply(getCause()));
+            return TryPouet.of(() -> f.apply(getCause()));
         } else {
             return this;
         }
@@ -812,11 +812,11 @@ public interface Try<T> extends Value<T>, Serializable {
      * @throws NullPointerException if {@code f} is null
      */
     @SuppressWarnings("unchecked")
-    default Try<T> recoverWith(Function<? super Throwable, ? extends Try<? extends T>> f) {
+    default TryPouet<T> recoverWith(Function<? super Throwable, ? extends TryPouet<? extends T>> f) {
         Objects.requireNonNull(f, "f is null");
         if (isFailure()) {
             try {
-                return (Try<T>) f.apply(getCause());
+                return (TryPouet<T>) f.apply(getCause());
             } catch (Throwable t) {
                 return new Failure<>(t);
             }
@@ -846,7 +846,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return An instance of type {@code U}
      * @throws NullPointerException if {@code f} is null
      */
-    default <U> U transform(Function<? super Try<T>, ? extends U> f) {
+    default <U> U transform(Function<? super TryPouet<T>, ? extends U> f) {
         Objects.requireNonNull(f, "f is null");
         return f.apply(this);
     }
@@ -858,7 +858,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return this {@code Try}.
      * @throws NullPointerException if {@code runnable} is null
      */
-    default Try<T> andFinally(Runnable runnable) {
+    default TryPouet<T> andFinally(Runnable runnable) {
         Objects.requireNonNull(runnable, "runnable is null");
         return andFinallyTry(runnable::run);
     }
@@ -870,7 +870,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @return this {@code Try}.
      * @throws NullPointerException if {@code runnable} is null
      */
-    default Try<T> andFinallyTry(CheckedRunnable runnable) {
+    default TryPouet<T> andFinallyTry(CheckedRunnable runnable) {
         Objects.requireNonNull(runnable, "runnable is null");
         try {
             runnable.run();
@@ -895,7 +895,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @param <T> component type of this Success
      * @author Daniel Dietrich
      */
-    final class Success<T> implements Try<T>, Serializable {
+    final class Success<T> implements TryPouet<T>, Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -962,7 +962,7 @@ public interface Try<T> extends Value<T>, Serializable {
      * @param <T> component type of this Failure
      * @author Daniel Dietrich
      */
-    final class Failure<T> implements Try<T>, Serializable {
+    final class Failure<T> implements TryPouet<T>, Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -1197,8 +1197,8 @@ public interface Try<T> extends Value<T>, Serializable {
          * @return A new {@code Try} instance.
          */
         @SuppressWarnings("try")/* https://bugs.openjdk.java.net/browse/JDK-8155591 */
-        public <R> Try<R> of(CheckedFunction1<? super T1, ? extends R> f) {
-            return Try.of(() -> {
+        public <R> TryPouet<R> of(CheckedFunction1<? super T1, ? extends R> f) {
+            return TryPouet.of(() -> {
                 try (T1 t1 = t1Supplier.apply()) {
                     return f.apply(t1);
                 }
@@ -1230,8 +1230,8 @@ public interface Try<T> extends Value<T>, Serializable {
          * @return A new {@code Try} instance.
          */
         @SuppressWarnings("try")/* https://bugs.openjdk.java.net/browse/JDK-8155591 */
-        public <R> Try<R> of(CheckedFunction2<? super T1, ? super T2, ? extends R> f) {
-            return Try.of(() -> {
+        public <R> TryPouet<R> of(CheckedFunction2<? super T1, ? super T2, ? extends R> f) {
+            return TryPouet.of(() -> {
                 try (T1 t1 = t1Supplier.apply(); T2 t2 = t2Supplier.apply()) {
                     return f.apply(t1, t2);
                 }
@@ -1266,8 +1266,8 @@ public interface Try<T> extends Value<T>, Serializable {
          * @return A new {@code Try} instance.
          */
         @SuppressWarnings("try")/* https://bugs.openjdk.java.net/browse/JDK-8155591 */
-        public <R> Try<R> of(CheckedFunction3<? super T1, ? super T2, ? super T3, ? extends R> f) {
-            return Try.of(() -> {
+        public <R> TryPouet<R> of(CheckedFunction3<? super T1, ? super T2, ? super T3, ? extends R> f) {
+            return TryPouet.of(() -> {
                 try (T1 t1 = t1Supplier.apply(); T2 t2 = t2Supplier.apply(); T3 t3 = t3Supplier.apply()) {
                     return f.apply(t1, t2, t3);
                 }
@@ -1305,8 +1305,8 @@ public interface Try<T> extends Value<T>, Serializable {
          * @return A new {@code Try} instance.
          */
         @SuppressWarnings("try")/* https://bugs.openjdk.java.net/browse/JDK-8155591 */
-        public <R> Try<R> of(CheckedFunction4<? super T1, ? super T2, ? super T3, ? super T4, ? extends R> f) {
-            return Try.of(() -> {
+        public <R> TryPouet<R> of(CheckedFunction4<? super T1, ? super T2, ? super T3, ? super T4, ? extends R> f) {
+            return TryPouet.of(() -> {
                 try (T1 t1 = t1Supplier.apply(); T2 t2 = t2Supplier.apply(); T3 t3 = t3Supplier.apply(); T4 t4 = t4Supplier.apply()) {
                     return f.apply(t1, t2, t3, t4);
                 }
@@ -1347,8 +1347,8 @@ public interface Try<T> extends Value<T>, Serializable {
          * @return A new {@code Try} instance.
          */
         @SuppressWarnings("try")/* https://bugs.openjdk.java.net/browse/JDK-8155591 */
-        public <R> Try<R> of(CheckedFunction5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> f) {
-            return Try.of(() -> {
+        public <R> TryPouet<R> of(CheckedFunction5<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? extends R> f) {
+            return TryPouet.of(() -> {
                 try (T1 t1 = t1Supplier.apply(); T2 t2 = t2Supplier.apply(); T3 t3 = t3Supplier.apply(); T4 t4 = t4Supplier.apply(); T5 t5 = t5Supplier.apply()) {
                     return f.apply(t1, t2, t3, t4, t5);
                 }
@@ -1392,8 +1392,8 @@ public interface Try<T> extends Value<T>, Serializable {
          * @return A new {@code Try} instance.
          */
         @SuppressWarnings("try")/* https://bugs.openjdk.java.net/browse/JDK-8155591 */
-        public <R> Try<R> of(CheckedFunction6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? extends R> f) {
-            return Try.of(() -> {
+        public <R> TryPouet<R> of(CheckedFunction6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? extends R> f) {
+            return TryPouet.of(() -> {
                 try (T1 t1 = t1Supplier.apply(); T2 t2 = t2Supplier.apply(); T3 t3 = t3Supplier.apply(); T4 t4 = t4Supplier.apply(); T5 t5 = t5Supplier.apply(); T6 t6 = t6Supplier.apply()) {
                     return f.apply(t1, t2, t3, t4, t5, t6);
                 }
@@ -1440,8 +1440,8 @@ public interface Try<T> extends Value<T>, Serializable {
          * @return A new {@code Try} instance.
          */
         @SuppressWarnings("try")/* https://bugs.openjdk.java.net/browse/JDK-8155591 */
-        public <R> Try<R> of(CheckedFunction7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? extends R> f) {
-            return Try.of(() -> {
+        public <R> TryPouet<R> of(CheckedFunction7<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? extends R> f) {
+            return TryPouet.of(() -> {
                 try (T1 t1 = t1Supplier.apply(); T2 t2 = t2Supplier.apply(); T3 t3 = t3Supplier.apply(); T4 t4 = t4Supplier.apply(); T5 t5 = t5Supplier.apply(); T6 t6 = t6Supplier.apply(); T7 t7 = t7Supplier.apply()) {
                     return f.apply(t1, t2, t3, t4, t5, t6, t7);
                 }
@@ -1491,8 +1491,8 @@ public interface Try<T> extends Value<T>, Serializable {
          * @return A new {@code Try} instance.
          */
         @SuppressWarnings("try"/* https://bugs.openjdk.java.net/browse/JDK-8155591 */)
-        public <R> Try<R> of(CheckedFunction8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, ? extends R> f) {
-            return Try.of(() -> {
+        public <R> TryPouet<R> of(CheckedFunction8<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, ? super T7, ? super T8, ? extends R> f) {
+            return TryPouet.of(() -> {
                 try (T1 t1 = t1Supplier.apply(); T2 t2 = t2Supplier.apply(); T3 t3 = t3Supplier.apply(); T4 t4 = t4Supplier.apply(); T5 t5 = t5Supplier.apply(); T6 t6 = t6Supplier.apply(); T7 t7 = t7Supplier.apply(); T8 t8 = t8Supplier.apply()) {
                     return f.apply(t1, t2, t3, t4, t5, t6, t7, t8);
                 }

@@ -44,31 +44,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
-<!--                    <execution>-->
-<!--                        <id>scan-suspendables</id>-->
-<!--                        <phase>compile</phase>-->
-<!--                        <configuration>-->
-<!--                            <tasks>-->
-<!--                                <property name="ant_classpath" refid="maven.dependency.classpath"/>-->
-<!--                                <taskdef name="scanSuspendables" classname="co.paralleluniverse.fibers.instrument.SuspendablesScanner"-->
-<!--                                         classpath="${ant_classpath}"/>-->
-<!--                                &lt;!&ndash; Use "allowMonitors" to allow instrumenting methods containing synchronization &ndash;&gt;-->
-<!--                                &lt;!&ndash; instrumentationTask allowMonitors="true" &ndash;&gt;-->
-<!--                                <scanSuspendables-->
-<!--                                        auto="true"-->
-<!--                                        append="true"-->
-<!--                                        suspendablesFile="${project.build.outputDirectory}/META-INF/suspendables"-->
-<!--                                        supersFile="${project.build.outputDirectory}/META-INF/suspendable-supers"-->
-<!--                                >-->
-<!--                                    <fileset dir="${project.build.outputDirectory}/" includes="**/*.class"/>-->
-<!--                                </scanSuspendables>-->
-<!--                            </tasks>-->
-<!--                        </configuration>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-
                     <execution>
                         <id>instrument-classes</id>
                         <phase>compile</phase>
