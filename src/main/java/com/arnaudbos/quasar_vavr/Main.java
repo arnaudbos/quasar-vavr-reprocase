@@ -11,8 +11,10 @@ import co.paralleluniverse.strands.channels.Channel;
 import co.paralleluniverse.strands.channels.Channels;
 import io.vavr.control.Try;
 
+import java.util.concurrent.ExecutionException;
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
         Channel<String> producerChan = Channels.newChannel(1, Channels.OverflowPolicy.BLOCK);
         new Fiber<Void>() {
             @Override
@@ -26,10 +28,16 @@ public class Main {
             }
         }.start();
 
-        for (;;) {
-            Try.of(producerChan::receive)
-                .peek(Main::send);
-        }
+        new Fiber<Void>() {
+            @Override
+            protected Void run() throws SuspendExecution, InterruptedException {
+
+                for (;;) {
+                    Try.of(producerChan::receive).peek(Main::send);
+//                    send(Try.of(producerChan::receive).get());
+                }
+            }
+        }.start().get();
     }
 
     @Suspendable
@@ -41,7 +49,6 @@ public class Main {
                 "Coordinator",
                 Coordinator::new
             );
-//            coordinator.send(msg);
             System.out.println(RequestReplyHelper.call(coordinator, msg));
         } catch (SuspendExecution suspendExecution) {
             //suspendExecution.printStackTrace();

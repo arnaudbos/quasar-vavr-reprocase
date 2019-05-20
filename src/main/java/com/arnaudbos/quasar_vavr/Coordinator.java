@@ -23,8 +23,10 @@ public class Coordinator extends BasicActor<StringMessage, String> {
     protected String doRun() throws InterruptedException, SuspendExecution {
         for(;;) {
 
-            Try.of(() -> receive(StringMessage.class))
-                .peek(this::forward);
+//            StringMessage msg = receive(StringMessage.class);
+            StringMessage msg = Try.of(() -> receive(StringMessage.class))
+                .peek(this::forward)
+                .get();
 //            forward(msg);
 //            System.out.println(msg.getMessage());
         }

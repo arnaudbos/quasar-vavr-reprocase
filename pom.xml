@@ -9,7 +9,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -21,25 +22,26 @@
         <dependency>
             <groupId>co.paralleluniverse</groupId>
             <artifactId>quasar-core</artifactId>
-            <version>0.8.0</version>
+            <version>0.7.10</version>
+            <classifier>jdk8</classifier>
         </dependency>
         <dependency>
             <groupId>co.paralleluniverse</groupId>
             <artifactId>quasar-actors</artifactId>
-            <version>0.8.0</version>
+            <version>0.7.10</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <release>11</release>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-compiler-plugin</artifactId>-->
+                <!--<version>3.8.0</version>-->
+                <!--<configuration>-->
+                    <!--<release>8</release>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -52,8 +54,8 @@
                                 <property name="ant_classpath" refid="maven.dependency.classpath"/>
                                 <taskdef name="scanSuspendables" classname="co.paralleluniverse.fibers.instrument.SuspendablesScanner"
                                          classpath="${ant_classpath}"/>
-                                <taskdef name="instrumentationTask" classname="co.paralleluniverse.fibers.instrument.InstrumentationTask"
-                                         classpath="${ant_classpath}"/>
+                                <!--<taskdef name="instrumentationTask" classname="co.paralleluniverse.fibers.instrument.InstrumentationTask"-->
+                                         <!--classpath="${ant_classpath}"/>-->
                                 <!-- Use "allowMonitors" to allow instrumenting methods containing synchronization -->
                                 <!-- instrumentationTask allowMonitors="true" -->
                                 <scanSuspendables
@@ -64,15 +66,15 @@
                                 >
                                     <fileset dir="${project.build.outputDirectory}/" includes="**/*.class"/>
                                 </scanSuspendables>
-                                <instrumentationTask
-                                        check="true"
-                                        verbose="true"
-                                        allowMonitors="true"
-                                        allowBlocking="true"
-                                        debug="true"
-                                >
-                                    <fileset dir="${project.build.outputDirectory}/" includes="**/*.class"/>
-                                </instrumentationTask>
+                                <!--<instrumentationTask-->
+                                        <!--check="true"-->
+                                        <!--verbose="true"-->
+                                        <!--allowMonitors="true"-->
+                                        <!--allowBlocking="true"-->
+                                        <!--debug="true"-->
+                                <!--&gt;-->
+                                    <!--<fileset dir="${project.build.outputDirectory}/" includes="**/*.class"/>-->
+                                <!--</instrumentationTask>-->
                             </tasks>
                         </configuration>
                         <goals>

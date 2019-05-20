@@ -17,7 +17,7 @@ public class Consumer extends Actor<String, Void> {
     @Override
     protected Void doRun() throws InterruptedException, SuspendExecution {
         for(;;) {
-            System.out.println(receive());
+            System.out.println("Consumer got: " + receive());
         }
     }
 }
